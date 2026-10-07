@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>С днём рождения, Вика!</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a0033 0%, #4a0080 50%, #ff006e 100%);
+    background-size: 400% 400%;
+    animation: bgShift 15s ease infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+  }
+  @keyframes bgShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 60px 40px;
+    max-width: 640px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    animation: fadeUp 1s ease;
+    position: relative;
+    z-index: 2;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h1 {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    background: linear-gradient(90deg, #ffd700, #ff006e, #00d4ff, #ffd700);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 4s linear infinite;
+    margin-bottom: 24px;
+    font-weight: 800;
+  }
+  @keyframes shine {
+    to { background-position: 300% 0; }
+  }
+  .sub {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    line-height: 1.7;
+    opacity: 0.9;
+    margin-bottom: 32px;
+  }
+  .emoji {
+    font-size: 3rem;
+    display: inline-block;
+    animation: bounce 2s ease infinite;
+    margin-bottom: 20px;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  button {
+    background: linear-gradient(90deg, #ff006e, #ffd700);
+    border: none;
+    color: #1a0033;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 16px 36px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 24px rgba(255, 0, 110, 0.4);
+  }
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(255, 0, 110, 0.6);
+  }
+  button:active { transform: scale(0.98); }
+  .hidden { display: none; }
+  .surprise {
+    animation: fadeUp 0.6s ease;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-top: 24px;
+    opacity: 0.95;
+  }
+  .hearts {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .heart {
+    position: absolute;
+    font-size: 1.5rem;
+    animation: float 8s linear infinite;
+    opacity: 0.6;
+  }
+  @keyframes float {
+    from { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.7; }
+    to { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  }
+  canvas#confetti {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 3;
+  }
+</style>
+</head>
+<body>
+
+<div class="hearts" id="hearts"></div>
+<canvas id="confetti"></canvas>
+
+<div class="card">
+  <div class="emoji">🎉</div>
+  <h1>С днём рождения, Вика!</h1>
+  <p class="sub">
+    Сегодня твой день — и весь мир немного ярче.<br>
+    Пусть каждый момент приносит радость,<br>
+    а мечты сбываются быстрее, чем загадываешь.
+  </p>
+  <button onclick="showSurprise()">нажми сюда ✨</button>
+  <div class="surprise hidden" id="surprise">
+    💖 Ты — лучшее, что случалось с этим миром.<br>
+    Оставайся такой же сияющей, доброй и настоящей.<br>
+    Пусть год будет полон тепла, смеха и людей,<br>
+    которые тебя любят. С днём рождения! 🎂
+  </div>
+</div>
+
+<script>
+// сердечки
+const heartsEl = document.getElementById('hearts');
+const heartEmojis = ['💖', '💕', '✨', '🌸', '💫', '🎈'];
+for (let i = 0; i < 20; i++) {
+  const h = document.createElement('div');
+  h.className = 'heart';
+  h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+  h.style.left = Math.random() * 100 + '%';
+  h.style.animationDelay = Math.random() * 8 + 's';
+  h.style.animationDuration = (6 + Math.random() * 6) + 's';
+  heartsEl.appendChild(h);
+}
+
+// конфетти
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function launchConfetti() {
+  const colors = ['#ff006e', '#ffd700', '#00d4ff', '#ff6ec7', '#7dffb3', '#ffffff'];
+  for (let i = 0; i < 150; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: -20,
+      vx: (Math.random() - 0.5) * 6,
+      vy: Math.random() * 4 + 2,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * 360,
+      vrot: (Math.random() - 0.5) * 12,
+      life: 200
+    });
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.life > 0 && p.y < canvas.height + 30);
+  for (const p of particles) {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.12;
+    p.rot += p.vrot;
+    p.life--;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI / 180);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+    ctx.restore();
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+function showSurprise() {
+  document.getElementById('surprise').classList.remove('hidden');
+  launchConfetti();
+  setTimeout(launchConfetti, 400);
+  setTimeout(launchConfetti, 800);
+}
+
+// авто-конфетти на старте
+window.addEventListener('load', () => {
+  launchConfetti();
+});
+</script>
+</body>
+</html>
